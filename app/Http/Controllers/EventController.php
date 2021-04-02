@@ -37,6 +37,17 @@ class EventController extends Controller
             // POST /event {"type":"deposit", "destination":"100", "amount":10}
             // 201 {"destination": {"id":"100", "balance":20}}
             return $this->deposit($request->input('destination'), $request->input('amount'));
+        } else if ($type === 'withdraw') {
+            // —
+            // # Withdraw from non-existing account
+            // POST /event {"type":"withdraw", "origin":"200", "amount":10}
+            // 404 0
+
+            // —
+            // # Withdraw from existing account
+            // POST /event {"type":"withdraw", "origin":"100", "amount":5}
+            // 201 {"origin": {"id":"100", "balance":15}
+            return $this->withdraw($request->input('origin'),$request->input('amount'));
         }
     }
 
@@ -86,6 +97,19 @@ class EventController extends Controller
                 "id" => "100",
                 "balance" => 20
             ]
-            ], 201);
+        ], 201);
+    }
+
+    private function withdraw($origin, $amount)
+    {
+        $account = Account::findOrFail($origin);
+        $account->balance -= $amount;
+        $account->save();
+    return response()->json([
+        'origin' => [
+            'id' => $account->id,
+            'balance' => $account->balance
+        ]
+        ], 201);
     }
 }
