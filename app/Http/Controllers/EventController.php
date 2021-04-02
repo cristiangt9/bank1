@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
@@ -47,7 +48,17 @@ class EventController extends Controller
             // # Withdraw from existing account
             // POST /event {"type":"withdraw", "origin":"100", "amount":5}
             // 201 {"origin": {"id":"100", "balance":15}
-            return $this->withdraw($request->input('origin'),$request->input('amount'));
+            return $this->withdraw($request->input('origin'), $request->input('amount'));
+        } else if ($type === 'transfer') {
+            // —
+            // # Transfer from existing account
+            // POST /event {"type":"transfer", "origin":"100", "amount":15, "destination":"300"}
+            // 201 {"origin": {"id":"100", "balance":0}, "destination": {"id":"300", "balance":15}}
+            // —
+            // # Transfer from non-existing account
+            // POST /event {"type":"transfer", "origin":"200", "amount":15, "destination":"300"}
+            // 404 0
+            return $this->transfer($request->input('origin'), $request->input('destination'), $request->input('amount'));
         }
     }
 
@@ -105,11 +116,37 @@ class EventController extends Controller
         $account = Account::findOrFail($origin);
         $account->balance -= $amount;
         $account->save();
-    return response()->json([
-        'origin' => [
-            'id' => $account->id,
-            'balance' => $account->balance
-        ]
+        return response()->json([
+            'origin' => [
+                'id' => $account->id,
+                'balance' => $account->balance
+            ]
         ], 201);
+    }
+
+    private function transfer($origin, $destination, $amount)
+    {
+        $accountOrigin = Account::findOrFail($origin);
+        $accountDestination = Account::firstOrCreate([
+            'id' => $destination
+        ]);
+
+        DB::transaction(function () use ($accountOrigin, $accountDestination, $amount) {
+            $accountOrigin->balance -= $amount;
+            $accountDestination->balance += $amount;
+            $accountOrigin->save();
+            $accountDestination->save();
+        });
+
+        return response()->json([
+            "origin" => [
+                "id" => $accountOrigin->id, 
+                "balance" => $accountOrigin->balance
+            ], "destination" => [
+                "id" => $accountDestination->id, 
+                "balance" => $accountDestination->balance
+            ]
+            ], 201
+        );
     }
 }

@@ -30,13 +30,11 @@ Route::get('/balance', [BalanceController::class, 'show']);
 // # Deposit into existing account
 // POST /event {"type":"deposit", "destination":"100", "amount":10}
 // 201 {"destination": {"id":"100", "balance":20}}
-Route::post('/event', [EventController::class, 'store']);
-
 // —
+
 // # Withdraw from non-existing account
 // POST /event {"type":"withdraw", "origin":"200", "amount":10}
 // 404 0
-
 // —
 // # Withdraw from existing account
 // POST /event {"type":"withdraw", "origin":"100", "amount":5}
@@ -46,8 +44,12 @@ Route::post('/event', [EventController::class, 'store']);
 // # Transfer from existing account
 // POST /event {"type":"transfer", "origin":"100", "amount":15, "destination":"300"}
 // 201 {"origin": {"id":"100", "balance":0, "destination": {"id":"300", "balance":15}}
-
 // —
 // # Transfer from non-existing account
 // POST /event {"type":"transfer", "origin":"200", "amount":15, "destination":"300"}
 // 404 0
+Route::post('/event', [EventController::class, 'store']);
+
+
+
+
