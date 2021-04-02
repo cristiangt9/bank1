@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use Illuminate\Http\Request;
 
 class BalanceController extends Controller
@@ -33,9 +34,19 @@ class BalanceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        // —
+        // # Get balance for non-existing account
+        // GET /balance?account_id=1234
+        // 404 0
+        // —
+        // # Get balance for existing account
+        // GET /balance?account_id=100
+        // 200 20
+        $accountId = $request->input('account_id');
+        $account = Account::findOrFail($accountId);
+        return $account->balance;
     }
 
     /**
