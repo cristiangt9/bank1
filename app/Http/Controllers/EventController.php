@@ -26,7 +26,6 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-
         $type = $request->input('type');
         if ($type === 'deposit') {
             // —
@@ -60,6 +59,7 @@ class EventController extends Controller
             // 404 0
             return $this->transfer($request->input('origin'), $request->input('destination'), $request->input('amount'));
         }
+        abort(404);
     }
 
     /**
