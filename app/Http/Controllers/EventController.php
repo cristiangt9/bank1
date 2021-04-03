@@ -105,8 +105,8 @@ class EventController extends Controller
         $account->save();
         return response()->json([
             "destination" => [
-                "id" => "100",
-                "balance" => 20
+                "id" => $account->id,
+                "balance" => $account->balance
             ]
         ], 201);
     }
