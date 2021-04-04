@@ -14,6 +14,11 @@ class RestControllerTest extends TestCase
      */
     public function reset_refresh_data_and_response_with_ok()
     {
+        // —
+        // # Rest state before staring tests
+        // POST /reset
+        // 200 OK
+        
         // teniendo una solcitud post al enpoint 'api/reset' con el metodo post
         $response = $this->post('api/reset');
         // cuando el enpoint responde
