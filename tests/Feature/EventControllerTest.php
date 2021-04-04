@@ -51,4 +51,21 @@ class EventControllerTest extends TestCase
         $response->assertStatus(404);
         $this->assertEquals($response->getContent(), "0");
     }
+    /** @test  */
+    public function withdraw_for_existing_account_return_correct_balance()
+    {
+        // # Withdraw from existing account
+        // POST /event {"type":"withdraw", "origin":"100", "amount":5}
+        // 201 {"origin": {"id":"100", "balance":15}
+        
+        // Teniendo una solicitud al endpoint 'api/rest' con el metodo POST, y una cuenta "100" con un bancele de 20
+        $this->post('api/event', [
+            "type" => "deposit", "destination" => "100", "amount" => 20
+        ]);
+        // Cuando solicitemos un retiro (withdraw) a una cuenta existente
+        // Entonces el endpoint nos respondera con una respuesta con content: {"origin": {"id":"100", "balance":15} y codigo http 201
+        $response = $this->post('api/event',["type" => "withdraw", "origin" => "100", "amount" => 5]);
+        $response->assertStatus(201);
+        $response->assertJsonFragment(["origin" => ["id" => "100", "balance" => 15]]);
+    }
 }
