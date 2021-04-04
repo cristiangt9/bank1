@@ -61,7 +61,7 @@ class EventControllerTest extends TestCase
         // Teniendo una solicitud al endpoint 'api/rest' con el metodo POST, y una cuenta "100" con un bancele de 20
         // Cuando solicitemos un retiro (withdraw) a una cuenta existente
         // Entonces el endpoint nos respondera con una respuesta con content: {"origin": {"id":"100", "balance":15} y codigo http 201
-        
+
         $this->post('api/event', [
             "type" => "deposit", "destination" => "100", "amount" => 20
         ]);
@@ -77,7 +77,7 @@ class EventControllerTest extends TestCase
         // 201 {"origin": {"id":"100", "balance":0, "destination": {"id":"300", "balance":15}}
 
         // Teniendo una solicitud al endpoint 'api/rest' con el metodo POST, y una cuenta "100" con un bancele de 15
-        // Cuando solicitemos una transfrencia (transfer) a una cuenta existente
+        // Cuando solicitemos una transfrencia (transfer) desde una cuenta existente
         // Entonces el endpoint nos respondera con una respuesta con content: {"origin": {"id":"100", "balance":0, "destination": {"id":"300", "balance":15}} y codigo http 201
         $this->post('api/event', [
             "type" => "deposit", "destination" => "100", "amount" => 15
@@ -85,5 +85,19 @@ class EventControllerTest extends TestCase
         $response = $this->post('api/event', ["type" => "transfer", "origin" => "100", "amount" => 15, "destination" => "300"]);
         $response->assertStatus(201);
         $response->assertJsonFragment(["origin" => ["id" => "100", "balance" => 0], "destination" => ["id" => "300", "balance" => 15]]);
+    }
+    /** @test  */
+    public function transfer_from_nonexisting_account_return_404()
+    {
+        // # Transfer from non-existing account
+        // POST /event {"type":"transfer", "origin":"200", "amount":15, "destination":"300"}
+        // 404 0
+
+        // Teniendo una solicitud al endpoint 'api/rest' con el metodo POST
+        // Cuando solicitemos una transfrencia (transfer) desde una cuenta no existente
+        // Entonces el endpoint nos respondera con una respuesta con content: 0 y codigo http 404
+        $response = $this->post('api/event', ["type" => "transfer", "origin" => "200", "amount" => 15, "destination" => "300"]);
+        $response->assertStatus(404);
+        $this->assertEquals($response->getContent(), "0");
     }
 }
