@@ -57,15 +57,33 @@ class EventControllerTest extends TestCase
         // # Withdraw from existing account
         // POST /event {"type":"withdraw", "origin":"100", "amount":5}
         // 201 {"origin": {"id":"100", "balance":15}
-        
+
         // Teniendo una solicitud al endpoint 'api/rest' con el metodo POST, y una cuenta "100" con un bancele de 20
+        // Cuando solicitemos un retiro (withdraw) a una cuenta existente
+        // Entonces el endpoint nos respondera con una respuesta con content: {"origin": {"id":"100", "balance":15} y codigo http 201
+        
         $this->post('api/event', [
             "type" => "deposit", "destination" => "100", "amount" => 20
         ]);
-        // Cuando solicitemos un retiro (withdraw) a una cuenta existente
-        // Entonces el endpoint nos respondera con una respuesta con content: {"origin": {"id":"100", "balance":15} y codigo http 201
-        $response = $this->post('api/event',["type" => "withdraw", "origin" => "100", "amount" => 5]);
+        $response = $this->post('api/event', ["type" => "withdraw", "origin" => "100", "amount" => 5]);
         $response->assertStatus(201);
         $response->assertJsonFragment(["origin" => ["id" => "100", "balance" => 15]]);
+    }
+    /** @test  */
+    public function transfer_from_existing_account_return_origin_and_destination_accounts_wit_correct_balance()
+    {
+        // # Transfer from existing account
+        // POST /event {"type":"transfer", "origin":"100", "amount":15, "destination":"300"}
+        // 201 {"origin": {"id":"100", "balance":0, "destination": {"id":"300", "balance":15}}
+
+        // Teniendo una solicitud al endpoint 'api/rest' con el metodo POST, y una cuenta "100" con un bancele de 15
+        // Cuando solicitemos una transfrencia (transfer) a una cuenta existente
+        // Entonces el endpoint nos respondera con una respuesta con content: {"origin": {"id":"100", "balance":0, "destination": {"id":"300", "balance":15}} y codigo http 201
+        $this->post('api/event', [
+            "type" => "deposit", "destination" => "100", "amount" => 15
+        ]);
+        $response = $this->post('api/event', ["type" => "transfer", "origin" => "100", "amount" => 15, "destination" => "300"]);
+        $response->assertStatus(201);
+        $response->assertJsonFragment(["origin" => ["id" => "100", "balance" => 0], "destination" => ["id" => "300", "balance" => 15]]);
     }
 }
