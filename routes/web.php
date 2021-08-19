@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PagoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/comprar', [PagoController::class, 'index']);
+Route::get('/', [PagoController::class, 'index']);
+Route::get('/response', [PagoController::class, 'response'])->name('response');
+Route::get('/paymentInformation', [PagoController::class, 'getDataCard']);
+Route::post('/savePaymentInformation', [PagoController::class, 'tokenizationDataCard'])->name('savePaymentInformation');

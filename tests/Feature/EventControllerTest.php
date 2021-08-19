@@ -19,20 +19,34 @@ class EventControllerTest extends TestCase
         // POST /event {"type":"deposit", "destination":"100", "amount":10}
         // 201 {"destination": {"id":"100", "balance":10}}
         // —
-        // # Deposit into existing account
-        // POST /event {"type":"deposit", "destination":"100", "amount":10}
-        // 201 {"destination": {"id":"100", "balance":20}}
-        // —
 
-        // teniendo una solicitud al enpoint 'api/event' con el metodo POST
+        // teniendo una solicitud al endpoint 'api/event' con el metodo POST
         $response = $this->post('api/event', [
             "type" => "deposit", "destination" => "100", "amount" => 10
         ]);
         // cuando el enpoint responde
-        // entonces obtendremos un status 201, un content: 'ok' y la base de datos limpia
+        // entonces obtendremos un status 201, un content: 'created' y la base de datos limpia
         $response->assertStatus(201);
         $response->assertJsonFragment(["destination" => ["id" => "100", "balance" => 10]]);
     }
+    /** @test  */
+    public function deposit_for_exixting_account_return_an_deposit_made()
+    {
+        // # Deposit into existing account
+        // POST /event {"type":"deposit", "destination":"100", "amount":10}
+        // 201 {"destination": {"id":"100", "balance":20}}
+        // —
+        // teniendo una solicitud al endpoint 'api/event' con el metodo POST
+        $this->post('api/event', [
+            "type" => "deposit", "destination" => "100", "amount" => 10
+        ]);
+        $response = $this->post('api/event', [
+            "type" => "deposit", "destination" => "100", "amount" => 10
+        ]);
+        $response->assertStatus(201);
+        $response->assertJsonFragment(["destination" => ["id" => "100", "balance" => 20]]);
+    }
+
     /** @test  */
     public function withdraw_for_nonexisting_account_return_404()
     {
