@@ -20,5 +20,7 @@ Route::get('/', function () {
 Route::get('/comprar', [PagoController::class, 'index']);
 Route::get('/', [PagoController::class, 'index']);
 Route::get('/response', [PagoController::class, 'response'])->name('response');
-Route::get('/paymentInformation', [PagoController::class, 'getDataCard']);
-Route::post('/savePaymentInformation', [PagoController::class, 'tokenizationDataCard'])->name('savePaymentInformation');
+Route::get('/paymentInformation', [PagoController::class, 'formCard']);
+Route::get('/paymentInformation2', [PagoController::class, 'formCard2']);
+Route::post('/savePaymentInformation', [PagoController::class, 'saveData'])->name('savePaymentInformation');
+Route::post('/savePaymentInformation2', [PagoController::class, 'tokenizationDataCard'])->name('savePaymentInformation2');

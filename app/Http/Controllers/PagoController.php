@@ -28,14 +28,25 @@ class PagoController extends Controller
         return $this->confirmation($response["data"]);
     }
 
-    public function getDataCard()
+    public function formCard()
     {
         return view('formCard', ['publicKey' => $this->publicKey]);
     }
 
+    public function formCard2()
+    {
+        return view('formCard2');
+    }
+
+    public function saveData(Request $request)
+    {
+        // card tokenizada en el frontend
+        dd($request->all());
+    }
+
     public function tokenizationDataCard(Request $request)
     {
-        dd($request->all());
+        // card tokenizada en el backend
         $epayco = new \Epayco\Epayco([
             "apiKey" => $this->publicKey,
             "privateKey" => $this->privateKey,
@@ -44,12 +55,12 @@ class PagoController extends Controller
         ]);
 
         $token = $epayco->token->create(array(
-            "card[number]" => $request,
-            "card[exp_year]" => "2017",
-            "card[exp_month]" => "07",
-            "card[cvc]" => "123"
+            "card[number]" => $request->card['number'],
+            "card[exp_year]" => $request->card['exp_year'],
+            "card[exp_month]" => $request->card['exp_month'],
+            "card[cvc]" => $request->card['cvc']
         ));
-        return $token;
+        dd($token);
     }
 
     private function confirmation($request)
